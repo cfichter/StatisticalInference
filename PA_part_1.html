@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Course Project Part 1</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h3>Course Project Part 1</h3>
+
+<p>####Simulation with exponential distribution
+The exponential distribution can be simulated in R with <em>rexp(n,lambda)</em> where lambda is the rate parameter. The mean of exponential distribution is <em>1/lambda</em> and the standard deviation is also <em>1/lambda</em>. In this simulation, we will investigate the distribution of averages of 40 exponential distributions, lambda=0.2.</p>
+
+<p>Initially, we set:</p>
+
+<pre><code class="r">lambda &lt;- 0.2
+set.seed(3)
+num_sim &lt;- 1000 #how many simulations we will do
+sample_size &lt;- 40 #sample size 
+#sim is a (num_sim*sample_size) matrix
+sim &lt;- matrix(rexp(num_sim*sample_size, rate=lambda), num_sim, sample_size)
+row_means &lt;- rowMeans(sim) #means of simulations
+</code></pre>
+
+<p>Now, we want to show</p>
+
+<ul>
+<li>where the distribution is centered at and compare it to the theoretical center of the distribution.</li>
+<li>how variable it is and compare it to the theoretical variance of the distribution.</li>
+<li>and that the distribution is approximately normal.</li>
+</ul>
+
+<p>The distribution of sample means is centered at 4.98662 and the theoretical center of the distribution is 5.</p>
+
+<pre><code class="r">#sample means
+mean(row_means)
+</code></pre>
+
+<pre><code>## [1] 4.98662
+</code></pre>
+
+<pre><code class="r">#theoretical
+1/lambda
+</code></pre>
+
+<pre><code>## [1] 5
+</code></pre>
+
+<p>The variance of sample means is 0.625 where the theoretical variance of the distribution is 0.6257575.</p>
+
+<pre><code class="r">#theoretical
+sd &lt;- (1/lambda)/sqrt(sample_size)
+sd^2
+</code></pre>
+
+<pre><code>## [1] 0.625
+</code></pre>
+
+<pre><code class="r">#sample variance
+var(row_means)
+</code></pre>
+
+<pre><code>## [1] 0.6257575
+</code></pre>
+
+<p>Graphically, the distribution of sample means is as follows.</p>
+
+<pre><code class="r"># plot histogram of averages
+hist(row_means, breaks=50, prob=TRUE,
+     main=&quot;Distribution of averages of samples,
+     drawn from exponential distribution with lambda=0.2&quot;,
+     xlab=&quot;&quot;)
+# density of the averages of samples
+lines(density(row_means))
+# theoretical center of distribution
+abline(v=1/lambda, col=&quot;red&quot;)
+# theoretical density of the averages of samples
+xfit &lt;- seq(min(row_means), max(row_means), length=100)
+yfit &lt;- dnorm(xfit, mean=1/lambda, sd=(1/lambda/sqrt(sample_size)))
+lines(xfit, yfit, pch=22, col=&quot;red&quot;, lty=2)
+# add legend
+legend(&#39;topright&#39;, c(&quot;simulation&quot;, &quot;theoretical&quot;), lty=c(1,2), col=c(&quot;black&quot;, &quot;red&quot;))
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4"> 
+Due to the CLT, the averages of samples follow normal distribution. The figure above also shows the density computed using the histogram and the normal density plotted with theoretical mean and variance values. The q-q plot below suggests normality.</p>
+
+<pre><code class="r">qqnorm(row_means)
+qqline(row_means)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5"> 
+Now, we evaluate the coverage of the confidence interval for <em>lambda</em>:</p>
+
+<p>X_hat Â± ((1.96 * S)/ sqrt(n)).</p>
+
+<pre><code class="r">X_hat &lt;- mean(row_means) + c(-1, 1) * 1.96 * sd(row_means)/sqrt(sample_size)
+</code></pre>
+
+<pre><code class="r">#define a sequence of 1/lambda values near what we are estimating
+lambda_vals &lt;- seq(4, 6, by=0.01)
+
+#coverage
+set.seed(3)
+coverage &lt;- sapply(lambda_vals, function(lmbd) {
+  #Calculate X_hats for a thousand of simulations 
+  s &lt;- matrix(rexp(num_sim*sample_size, rate=0.2), num_sim, sample_size)
+  X_hats &lt;- rowMeans(s) #means of simulations
+  #calculate limits  
+  lowerlimit &lt;- X_hats - (qnorm(0.975) * (1/lambda)/sqrt(sample_size))
+  upperlimit &lt;- X_hats + (qnorm(0.975) * (1/lambda)/sqrt(sample_size))
+  #calculate the proportion of times that they can cover
+  #the true value of lambda used to simulate the data
+  mean(lowerlimit &lt; lmbd &amp; upperlimit &gt; lmbd)
+  #sum(lmbd &gt; lowerlimit &amp; lmbd &lt; upperlimit) / length(X_hats)
+})
+
+#plot
+library(ggplot2)
+qplot(lambda_vals, coverage) +
+  geom_hline(yintercept=0.95)+ ylim(.75, 1.10)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7"> 
+The plot shows that, for an election of <em>lambda</em> close to 5, the average of the sample mean falls within the confidence interval at least 95% of the time. </p>
+
+</body>
+
+</html>
